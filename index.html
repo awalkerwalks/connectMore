@@ -1,0 +1,1227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Trivia Night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --warm-white: #FBF8F2;
+    --ink: #1C1208;
+    --amber: #D4820A;
+    --amber-light: #F0A830;
+    --rust: #C04A2A;
+    --forest: #2A5C3F;
+    --navy: #1A2E4A;
+    --plum: #5C2A5C;
+    --teal: #1A5C5C;
+    --gold: #B8860B;
+    --card-shadow: 0 8px 32px rgba(28,18,8,0.18);
+    --pass-red: #E53E3E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(212,130,10,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(90,40,90,0.1) 0%, transparent 60%),
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* ── HOME ── */
+  #home {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .logo-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber-light);
+    margin-bottom: 1rem;
+    opacity: 0.8;
+  }
+
+  h1.title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    color: var(--cream);
+    line-height: 1.05;
+    margin-bottom: 0.5rem;
+  }
+
+  h1.title em {
+    font-style: italic;
+    color: var(--amber-light);
+  }
+
+  .subtitle {
+    color: rgba(245,239,224,0.5);
+    font-size: 1rem;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-primary {
+    background: var(--amber);
+    color: var(--ink);
+    border: none;
+    padding: 1rem 3rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(212,130,10,0.4);
+  }
+  .btn-primary:hover {
+    background: var(--amber-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(212,130,10,0.5);
+  }
+
+  .decoration {
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    margin: 2rem auto;
+  }
+
+  /* ── CATEGORY GRID ── */
+  #category-screen {
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex; flex-direction: column;
+    align-items: center;
+  }
+
+  .screen-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .screen-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--cream);
+    margin-bottom: 0.3rem;
+  }
+
+  .screen-header p {
+    color: rgba(245,239,224,0.45);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 720px;
+    width: 100%;
+  }
+
+  .cat-card {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .cat-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+
+  .cat-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .cat-card .cat-icon { font-size: 2.2rem; margin-bottom: 0.6rem; line-height: 1; }
+  .cat-card .cat-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .cat-card .cat-count {
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+    opacity: 0.55;
+    color: #fff;
+    letter-spacing: 0.05em;
+  }
+
+  /* Category colours */
+  .cat-history    { background: linear-gradient(135deg, #2A2040, #3A1A30); }
+  .cat-film       { background: linear-gradient(135deg, #1A2A1A, #2A3A0A); }
+  .cat-current    { background: linear-gradient(135deg, #0A2A3A, #1A3A4A); }
+  .cat-personal   { background: linear-gradient(135deg, #6B2A10, #8B3A20); border: 2px solid rgba(240,168,48,0.5); }
+  .cat-food       { background: linear-gradient(135deg, #2A1A0A, #3A2A0A); }
+  .cat-travel     { background: linear-gradient(135deg, #0A2A2A, #0A3A2A); }
+  .cat-music      { background: linear-gradient(135deg, #2A0A3A, #3A0A4A); }
+  .cat-people     { background: linear-gradient(135deg, #0A1A3A, #1A0A3A); }
+  .cat-science    { background: linear-gradient(135deg, #0A2A1A, #1A3A0A); }
+
+  /* ── GAME SCREEN ── */
+  #game-screen {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+  }
+
+  .game-header {
+    width: 100%; max-width: 640px;
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .back-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--cream);
+    padding: 0.5rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.12); }
+
+  .cat-badge {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--amber-light);
+  }
+
+  /* Timer */
+  .timer-wrap {
+    width: 100%; max-width: 640px;
+    margin-bottom: 1.5rem;
+  }
+
+  .timer-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    color: var(--cream);
+    text-align: center;
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  .timer-display.urgent { color: var(--rust); animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.6; }
+  }
+
+  .timer-bar-bg {
+    width: 100%; height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  .timer-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--amber-light));
+    border-radius: 3px;
+    transition: width 1s linear, background 0.5s;
+  }
+  .timer-bar.urgent { background: linear-gradient(90deg, var(--rust), #E87050); }
+
+  /* Question card */
+  .question-card {
+    width: 100%; max-width: 640px;
+    background: rgba(245,239,224,0.05);
+    border: 1px solid rgba(245,239,224,0.12);
+    border-radius: 12px;
+    padding: 2rem 2rem 1.5rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+  }
+
+  .question-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--amber), var(--amber-light), transparent);
+  }
+
+  .q-number {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,239,224,0.35);
+    margin-bottom: 0.8rem;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--cream);
+    line-height: 1.5;
+  }
+
+  /* Controls */
+  .controls {
+    width: 100%; max-width: 640px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .btn-got-it {
+    grid-column: 1 / 3;
+    background: var(--forest);
+    color: #fff;
+    border: none;
+    padding: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .btn-got-it:hover { background: #3A7A50; transform: translateY(-1px); }
+
+  .btn-pass {
+    background: rgba(192,74,42,0.2);
+    color: #F08060;
+    border: 1px solid rgba(192,74,42,0.4);
+    padding: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .btn-pass:hover { background: rgba(192,74,42,0.35); }
+  .btn-pass:disabled {
+    opacity: 0.3; cursor: not-allowed;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.06);
+  }
+
+  /* Stats bar */
+  .stats-row {
+    width: 100%; max-width: 640px;
+    display: flex; gap: 1rem;
+    justify-content: center;
+  }
+
+  .stat-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 30px;
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    color: var(--cream);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .stat-pill span { color: var(--amber-light); font-weight: 500; }
+
+  /* Pass pips */
+  .pass-pips {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .pip {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--rust);
+    transition: background 0.3s;
+  }
+  .pip.used { background: rgba(255,255,255,0.15); }
+
+  /* Timer controls */
+  .timer-controls {
+    width: 100%; max-width: 640px;
+    display: flex; gap: 0.75rem; justify-content: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .btn-start-timer {
+    background: var(--amber);
+    color: var(--ink);
+    border: none;
+    padding: 0.75rem 2.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .btn-start-timer:hover { background: var(--amber-light); }
+
+  /* Round end overlay */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(28,18,8,0.92);
+    backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+  }
+  .overlay.show { display: flex; }
+
+  .overlay h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--amber-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .overlay .big-score {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 12vw, 8rem);
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .overlay p {
+    color: rgba(245,239,224,0.5);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  .overlay-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(245,239,224,0.3);
+    color: var(--cream);
+    padding: 0.75rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background: rgba(245,239,224,0.08); }
+
+  /* Transition animation */
+  .question-card { animation: slideIn 0.3s ease; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 420px) {
+    .grid { gap: 0.6rem; }
+    .cat-card .cat-icon { font-size: 1.6rem; }
+    .cat-card .cat-name { font-size: 0.8rem; }
+    .controls { gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HOME ═══════════════════════════ -->
+<div id="home" class="screen active">
+  <p class="logo-eyebrow">A game for two</p>
+  <h1 class="title">Trivia<br><em>Night</em></h1>
+  <div class="decoration"></div>
+  <p class="subtitle">Pick a category · 5 minutes · tell your story</p>
+  <button class="btn-primary" onclick="showScreen('category-screen')">Let's Play</button>
+</div>
+
+<!-- ═══════════════════════════ CATEGORIES ═══════════════════════════ -->
+<div id="category-screen" class="screen">
+  <div class="screen-header" style="margin-top:2rem;">
+    <h2>Choose a Category</h2>
+    <p>The asker picks — the player has 5 minutes & 3 passes</p>
+  </div>
+
+  <div class="grid">
+    <div class="cat-card cat-history"   onclick="startGame('history')">
+      <div class="cat-icon">⚔️</div>
+      <div class="cat-name">History</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-film"      onclick="startGame('film')">
+      <div class="cat-icon">🎬</div>
+      <div class="cat-name">Film &amp; TV</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-current"   onclick="startGame('current')">
+      <div class="cat-icon">🌍</div>
+      <div class="cat-name">Current Affairs</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-music"     onclick="startGame('music')">
+      <div class="cat-icon">🎵</div>
+      <div class="cat-name">Music</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-personal"  onclick="startGame('personal')">
+      <div class="cat-icon">💛</div>
+      <div class="cat-name">Personal</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-people"    onclick="startGame('people')">
+      <div class="cat-icon">👥</div>
+      <div class="cat-name">Famous People</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-travel"    onclick="startGame('travel')">
+      <div class="cat-icon">✈️</div>
+      <div class="cat-name">Travel &amp; Places</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-food"      onclick="startGame('food')">
+      <div class="cat-icon">🍽️</div>
+      <div class="cat-name">Food &amp; Drink</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+    <div class="cat-card cat-science"   onclick="startGame('science')">
+      <div class="cat-icon">🔬</div>
+      <div class="cat-name">Science &amp; Tech</div>
+      <div class="cat-count">50 questions</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ GAME ═══════════════════════════ -->
+<div id="game-screen" class="screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="endRound(true)">← Back</button>
+    <div class="cat-badge" id="cat-badge">History</div>
+    <div class="pass-pips">
+      <div class="pip" id="pip1"></div>
+      <div class="pip" id="pip2"></div>
+      <div class="pip" id="pip3"></div>
+    </div>
+  </div>
+
+  <!-- Timer start button -->
+  <div class="timer-controls" id="timer-controls">
+    <button class="btn-start-timer" onclick="startTimer()">▶ Start Timer</button>
+  </div>
+
+  <div class="timer-wrap">
+    <div class="timer-display" id="timer-display">5:00</div>
+    <div class="timer-bar-bg">
+      <div class="timer-bar" id="timer-bar" style="width:100%"></div>
+    </div>
+  </div>
+
+  <div class="question-card" id="question-card">
+    <div class="q-number" id="q-number">Question 1</div>
+    <div class="q-text" id="q-text">Loading…</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-got-it" onclick="gotIt()">✓ Got it!</button>
+    <button class="btn-pass" id="btn-pass" onclick="passQ()">Pass</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-pill">Score <span id="score-display">0</span></div>
+    <div class="stat-pill">Passes left <span id="passes-display">3</span></div>
+    <div class="stat-pill">Q <span id="qnum-display">1</span> / <span id="qtotal-display">50</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ ROUND END OVERLAY ═══════════════════════════ -->
+<div class="overlay" id="end-overlay">
+  <p class="logo-eyebrow" style="color:var(--amber-light)">Round Over</p>
+  <h2 id="overlay-title">Time's up!</h2>
+  <div class="big-score" id="overlay-score">0</div>
+  <p id="overlay-msg">questions answered</p>
+  <div class="overlay-btns">
+    <button class="btn-primary" onclick="playAgainSameCategory()">Play Again (same)</button>
+    <button class="btn-outline" onclick="showScreen('category-screen')">Pick New Category</button>
+    <button class="btn-outline" onclick="showScreen('home')">Home</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  QUESTIONS DATABASE
+// ══════════════════════════════════════════
+const QUESTIONS = {
+
+history: [
+  "Who do you think will win the new space race to the moon — and what do you think their real reason for going is?",
+  "Was Napoleon actually short or is that just British propaganda — and does it matter?",
+  "Who was the most dangerous person to have a drink with in history — Henry VIII, Stalin, or Caligula?",
+  "Did the Roman Empire fall or did it just slowly become something else? What's your take?",
+  "Was Cleopatra's real power her intelligence or her alliances — and why does everyone still argue about it?",
+  "Should Churchill be remembered as a war hero or as a man responsible for a famine? Can he be both?",
+  "Was the assassination of Archduke Franz Ferdinand the real cause of WWI or just the excuse everyone needed?",
+  "Would you have joined the French Resistance in WWII, or do you think most people would have just kept their head down?",
+  "Who was the bigger tyrant — Henry VIII or Ivan the Terrible — and what's your reasoning?",
+  "Was the British Empire mostly good, mostly terrible, or so complicated the question is meaningless?",
+  "Did the moon landing change the world more than the internet has? Defend your answer.",
+  "Was Nero actually a monster or did his enemies just write better history than he did?",
+  "Which Cold War leader made the worst decision — Kennedy during the Cuban Missile Crisis or anyone on the Soviet side?",
+  "Was Marie Antoinette a villain, a scapegoat, or just deeply out of her depth — and does it matter?",
+  "Should we still be celebrating Columbus Day / Columbus as a figure at all?",
+  "Was the dropping of the atomic bomb on Hiroshima and Nagasaki justified or a war crime — what's your genuine take?",
+  "Who deserves more credit for ending apartheid — Mandela, De Klerk, or international pressure?",
+  "Was the French Revolution a triumph of liberty or a blueprint for how revolutions go wrong?",
+  "Did the Vikings get a bad reputation from the people they raided, or were they genuinely brutal even by the standards of the time?",
+  "Was Machiavelli giving genuine advice or writing satire — and does it change how we should read The Prince?",
+  "Was the Berlin Wall coming down inevitable or could the USSR have survived if different decisions had been made?",
+  "Was Genghis Khan a catastrophic destroyer or the founder of the world's first free-trade zone — and who benefits from each narrative?",
+  "Should Britain return the Elgin Marbles to Greece — yes, no, and why?",
+  "Was the assassination of JFK a conspiracy or just the chaotic act of one strange man?",
+  "Was Hitler's rise to power preventable, or were the conditions in Germany almost guaranteed to produce someone like him?",
+  "Which historical empire had the best food, architecture, and quality of life for ordinary people?",
+  "Was Alexander the Great a military genius or a reckless drunk who got lucky more often than not?",
+  "Should Hiroshima and Nagasaki have their own permanent seat at the UN Security Council as a reminder?",
+  "Was Stalin worse than Hitler, or is that comparison even useful or just a distraction?",
+  "Did the printing press do more damage or more good — considering it also spread propaganda as fast as ideas?",
+  "Was the Titanic disaster more about class than bad luck?",
+  "Who was the greatest military commander in history — and what's your actual reason, not just the obvious answer?",
+  "Was Sparta's approach to raising children admirable discipline or child abuse by another name?",
+  "If you could go back and stop one genocide in history, which would you choose and what would you actually do?",
+  "Was the Cold War arms race a form of deterrence that kept the peace or just insane brinkmanship that nearly ended everything?",
+  "Did the Renaissance happen because of great individuals or because the conditions finally allowed great work to emerge?",
+  "Was Rasputin genuinely mystical, a skilled manipulator, or just a man who outlasted every assassination attempt through sheer luck?",
+  "Should Japan have formally surrendered earlier in WWII — and why didn't they?",
+  "Was the partition of India in 1947 a British failure, an inevitability, or both?",
+  "Which historical figure do you think got away with the most in terms of their actual legacy versus their reputation?",
+  "Was the Space Race worth what it cost — in money, in lives, in political capital?",
+  "Did colonialism make the countries that did it richer in the long run or did it actually warp their own economies?",
+  "Was the sinking of the Lusitania an accident or did Britain want it to happen to pull America into WWI?",
+  "Was Pol Pot's Year Zero the most extreme experiment in wiping out history that any regime has ever attempted?",
+  "Was the Roman Colosseum a place of entertainment or state-sponsored terrorism — or were those the same thing?",
+  "If the Library of Alexandria hadn't burned, how far ahead would we be scientifically right now?",
+  "Was Margaret Thatcher a revolutionary or a wrecker — and does your answer depend entirely on where you grew up?",
+  "Should former colonial powers pay reparations — and if yes, to whom and how much?",
+  "Was the Treaty of Versailles the single biggest mistake of the 20th century?",
+  "Is there any empire in history that was genuinely benevolent or is that always self-serving myth-making?",
+  "Was Che Guevara a freedom fighter, a murderer, or a t-shirt — what's your actual honest opinion?"
+],
+
+film: [
+  "Is The Dark Knight actually a great film or has it just been watched by teenage boys at such scale that it absorbed into the culture?",
+  "Who is the most overrated director working today — someone everyone treats as a genius but you're not so sure about?",
+  "Was Breaking Bad the best TV show ever made or did it just have the best ending of a decent show?",
+  "Should Game of Thrones be remembered for its peak years or judged entirely on how badly it ended?",
+  "Is Citizen Kane actually brilliant or is it only famous because film critics decided it was?",
+  "What's the most undeserving Best Picture Oscar winner — the film that beat something far better?",
+  "Is the Marvel Cinematic Universe the most successful creative achievement in film history or the thing that killed cinema?",
+  "Which sequel was actually better than the original — and which sequel ruined a perfect film?",
+  "Is Christopher Nolan a genuinely original filmmaker or does he just make very expensive things that feel deep?",
+  "Should Joker (2019) have been taken more seriously as a film or was the backlash completely justified?",
+  "Which TV show did the worst thing to its main female character — and does the show acknowledge it?",
+  "Was Saltburn a clever film or a very stylish piece of nothing — what's your verdict?",
+  "Is Succession the definitive TV drama of the 2020s or is it just extremely well-dressed people being terrible?",
+  "Which Bond actor was actually the best — and your answer cannot be 'it depends what mood I'm in'?",
+  "Is the Oscars a legitimate measure of quality or a film industry marketing exercise dressed up as prestige?",
+  "Was The Wire underrated by mainstream audiences or is it overrated by people who want to seem serious?",
+  "Should violent or disturbing films come with context screenings like art exhibitions — or does that ruin them?",
+  "Which sitcom do you think holds up best on a rewatch — and which one is completely unwatchable now?",
+  "Is the Netflix model — dumping a whole series at once — actually bad for television?",
+  "What's the single worst casting decision in film history that genuinely derailed a good story?",
+  "Was The Sopranos finale genius or a massive troll — and what do you actually think happened?",
+  "Is horror a genre that deserves to be taken as seriously as drama — or is that a pretentious argument?",
+  "Which film franchise should have stopped after the first film — no exceptions?",
+  "Was Tom Hanks in Cast Away or The Green Mile more deserving of his Oscar than anything he actually won for?",
+  "Is Tarantino's use of the N-word in his films an artistic choice or just something he enjoys and has rationalised?",
+  "What is the single most misquoted or misremembered film scene, and does the real version hold up better?",
+  "Was the Barbie film a brilliant piece of pop feminism or a corporate co-option of feminist language — or both?",
+  "Which remake was so good it should replace the original in the cultural memory?",
+  "Is Rotten Tomatoes making films worse by quantifying quality into a percentage?",
+  "Was The Crown too kind or too harsh on the Royal Family — and does that depend on which episode?",
+  "Should Woody Allen's films still be shown in cinemas and taught in film schools given what we know?",
+  "What's the single most overused plot twist in film — and the last time it genuinely worked?",
+  "Was Avatar (2009) a technically extraordinary film with a terrible script, or is that unfair?",
+  "Is Daniel Craig's Bond run the best reboot in franchise history — better than Casino Royale through to No Time to Die as a single arc?",
+  "What's the most gratuitous piece of product placement that actually broke your immersion in a film?",
+  "Was Parasite deserving of its Best Picture win or was it the Academy trying to seem globally aware for one year?",
+  "Which TV show villain do you think was more sympathetic than the writers intended — and did that make it better or worse?",
+  "Was the final season of Lost a betrayal or a misunderstood ending that people are still too angry to appreciate?",
+  "Should method acting be banned on film sets — has it produced more great performances or more abused crews?",
+  "Is cinema actually dying, or has it just changed into something we haven't worked out how to value yet?",
+  "Who is the most technically underrated actor — brilliant in everything but never given a prestige role?",
+  "Was Oppenheimer Nolan's best film or his most overpraised — and what's the difference?",
+  "Which true crime documentary do you think crossed an ethical line — and was it still worth watching?",
+  "Is the 'three-act structure' actually limiting good storytelling or is it a useful constraint that separates craft from self-indulgence?",
+  "What is the single worst example of a film studio interfering with a director's vision — and can you name the film it ruined?",
+  "Was Friends as culturally damaging as people now say, or is the backlash its own kind of overcorrection?",
+  "Which film or show do you think best predicted something about the world we're actually living in now?",
+  "Was Bohemian Rhapsody a bad film that everyone enjoyed anyway — and is that actually fine?",
+  "Is the Bechdel Test useful or has it become a lazy shorthand for good writing?",
+  "What's the best performance ever given in a film most people consider bad?"
+],
+
+current: [
+  "Is Elon Musk currently good for the world, bad for the world, or is that the wrong question entirely?",
+  "Should the US have a third major political party — and if so, what would it actually stand for?",
+  "Is AI going to take your job specifically, and are you doing anything about it?",
+  "Was Brexit a mistake — give your honest verdict, not the diplomatic one?",
+  "Should the voting age be lowered to 16 — and does your answer change if it's 14?",
+  "Is the current housing crisis something governments could actually fix tomorrow if they wanted to?",
+  "Should social media platforms be liable for the content on them the same way newspapers are?",
+  "Is universal basic income a serious policy or a utopian fantasy — and has anyone actually made it work?",
+  "Was the West's response to Ukraine the right one — militarily, economically, politically?",
+  "Should the BBC licence fee be abolished — and if so, what replaces it?",
+  "Is cancel culture a genuine threat to free speech or a way for powerful people to avoid accountability?",
+  "Should there be a maximum wage — what's the strongest argument for it?",
+  "Is China the dominant global superpower of the 21st century and what does that mean for everyone else?",
+  "Should drug use be fully decriminalised — what happens if it is?",
+  "Is the climate crisis being handled by governments as an emergency or as a PR problem?",
+  "Should smartphones be banned in schools completely — and would you have hated that as a teenager?",
+  "Is the current NHS sustainable or does the model need to fundamentally change?",
+  "Was COVID handled well by the UK government — the honest five-years-later verdict?",
+  "Should assisted dying be legal in the UK and are you personally for or against it?",
+  "Is the rise of right-wing populism a response to real problems or manufactured fear — or both?",
+  "Should billionaires exist — is there a legitimate argument that they should?",
+  "Is the two-state solution for Israel and Palestine actually still possible in 2025?",
+  "Should the monarchy be abolished in the UK — and what does your gut say versus your head?",
+  "Is free university education in the UK a fair policy or does it benefit the wrong people?",
+  "Should the UK rejoin the EU single market — and would it even take us back?",
+  "Is the gig economy exploitation by another name or legitimate flexible work?",
+  "Should the UK have compulsory national service — military or civilian?",
+  "Is gender recognition reform a genuine rights issue or has it been badly handled by both sides?",
+  "Should the news be free at the point of access or is paywalled journalism actually better journalism?",
+  "Is the ULEZ policy in London a reasonable environmental measure or government overreach?",
+  "Should there be term limits on all elected officials — and why don't most countries have them?",
+  "Is immigration net positive for the UK economy — and does the data actually settle the argument?",
+  "Should AI-generated content be labelled — and can that even be enforced?",
+  "Is the current cost-of-living crisis structural or temporary — and who's actually responsible?",
+  "Should politicians have to pass an exam before standing for office — and what would it test?",
+  "Is Keir Starmer doing better or worse than you expected — what's your actual verdict?",
+  "Should companies be forced to publish their gender and race pay gaps — and should there be consequences?",
+  "Is the War on Drugs a failure — and what would ending it actually look like in practice?",
+  "Should there be a four-day working week by law — what's the strongest case against it?",
+  "Is the US still the world's most important democracy or has that ship sailed?",
+  "Should private schools lose their charitable status in the UK — and what's the fairest argument on both sides?",
+  "Is TikTok a genuine national security threat or is that just America being protectionist?",
+  "Should the Internet have an international governing body — and who would you trust to run it?",
+  "Is populism always bad or is it sometimes just democracy working as intended?",
+  "Should there be a wealth tax — and would the rich just leave if we had one?",
+  "Is the free press actually free in the UK given who owns the newspapers?",
+  "Should the UK have proportional representation — and would you feel differently if your party was in power?",
+  "Is the current state of US politics a crisis or just a very loud version of politics as usual?",
+  "Should the government regulate ultra-processed food in the same way it regulates tobacco?",
+  "Is social media doing more damage to democracy than anything else right now — or is that overstated?"
+],
+
+personal: [
+  "What's the most wrong you've ever been about a person — and when did you realise it?",
+  "What opinion do you have that you know most of your friends would disagree with?",
+  "What's the pettiest hill you would actually die on — not your best quality, but there it is?",
+  "What's the most hypocritical thing about you that you've made peace with?",
+  "Which of your personality traits do you think is actually just your upbringing in disguise?",
+  "What's something you did in your 20s that you now find genuinely baffling about yourself?",
+  "What's the worst advice you ever took, and from whom?",
+  "If your most annoying habit had to be defended in court, what's the best argument in its favour?",
+  "What career would you be in if money and status were completely irrelevant?",
+  "What's the most embarrassing thing you genuinely believe in?",
+  "What social rule do you secretly think is completely pointless?",
+  "If you could permanently change one thing about where you grew up, what would it be?",
+  "What's the dumbest risk you've ever taken — and are you glad you took it?",
+  "What's something you find genuinely impressive about yourself that you'd never actually say out loud?",
+  "What's the most unreasonable thing you find yourself judging other people for?",
+  "Which family member are you most similar to and does that please or concern you?",
+  "What's something you've changed your mind on in the last two years specifically?",
+  "What is your actual relationship with money — spender, saver, avoider, worrier?",
+  "What's the biggest lie you've told yourself for years before admitting it wasn't true?",
+  "What would the person who dislikes you most say is wrong with you — and are they right?",
+  "What's a rule you had for yourself in relationships that you've since completely abandoned?",
+  "What's the most childish thing you still do that you have no intention of stopping?",
+  "What's the version of yourself that other people experience versus the one you think you're presenting?",
+  "If someone read your search history for the last month, what would they conclude about you?",
+  "What did your parents get completely right in how they raised you?",
+  "What habit do you have that you know is bad for you but you're not actually trying to change?",
+  "What's the most surprising thing you've discovered you're good at as an adult?",
+  "What's the most embarrassing phase you went through — and at what age did it peak?",
+  "What's something you're far more competitive about than you admit in polite company?",
+  "What do you think is the actual reason most of your arguments start — the real one, not the stated one?",
+  "What's the best decision you've made that you made entirely for the wrong reasons?",
+  "What's something you've forgiven someone for that you know you'd never forgive yourself for?",
+  "What's the most 'main character' thing you've ever done in public?",
+  "What's a snobbery you have that you know is completely unjustifiable?",
+  "What would be the hardest thing to give up if you had to choose between your five biggest pleasures?",
+  "What do you think you'll be embarrassed about having believed in ten years' time?",
+  "What's the most manipulative thing you've done that you've convinced yourself was reasonable at the time?",
+  "What's something your partner / best friend knows about you that almost nobody else does?",
+  "What's the worst thing about your taste in people — romantically, or as friends?",
+  "What would the most honest version of your LinkedIn profile say?",
+  "What's something you've always done a certain way purely because of one specific experience?",
+  "What's the gap between who you want to be and who you actually are on a Tuesday?",
+  "What's the most ridiculous amount of emotional energy you've spent on something genuinely trivial?",
+  "What's a personality trait you've convinced yourself is a strength that other people experience as a flaw?",
+  "What's the most brutally honest thing you've ever said to someone you love — and was it the right call?",
+  "What do you think other people are thinking about you at social events — and are you probably wrong?",
+  "What's a compliment you give other people that you secretly wish someone would give you?",
+  "If you had to rank your priorities honestly — career, relationships, health, money, fun — what's the real order?",
+  "What's the thing about you that takes the longest for new people to realise?",
+  "What's the worst you've ever handled something you should have handled better — and what would you do now?"
+],
+
+food: [
+  "Is a hotdog a sandwich — and can you actually defend your answer philosophically?",
+  "Which country has the single worst national cuisine and what makes it objectively bleak?",
+  "Is pineapple on pizza a legitimate choice or a sign of something wrong with a person?",
+  "What's the most overrated restaurant in the city you live in — name it and justify it?",
+  "Is a full English breakfast the best breakfast in the world or is that just British propaganda?",
+  "What is the single most disgusting food that other people eat casually that you cannot get near?",
+  "Is Gordon Ramsay's actual cooking better or worse than his TV persona suggests — what's your read?",
+  "What's the worst thing you've eaten that you were expected to pretend was good?",
+  "Is Italian food the objectively best cuisine or is that just because everyone's been to Italy?",
+  "What's the most wrong a restaurant has ever got your order — and what did you actually do about it?",
+  "Should tipping be banned in UK restaurants — or is it doing important work propping up wages?",
+  "What's the food you eat most privately that you'd actively deny if someone saw you?",
+  "Is cereal an acceptable dinner for adults — and at what age does it become sad?",
+  "What is the most overhyped food trend of the last ten years — and what's your reasoning?",
+  "Should fast food restaurants display calorie counts and does it actually change what you order?",
+  "What's the single most dangerous dish you've cooked — either to others or to yourself?",
+  "Is the tasting menu format a beautiful thing or the restaurant industry holding food hostage?",
+  "What's your genuinely controversial opinion about British food that you'd stand by?",
+  "Should Michelin stars be abolished — what would actually get better if they didn't exist?",
+  "What food do you think is objectively disgusting but that you eat anyway for social reasons?",
+  "Is veganism the only morally defensible diet in 2025 or does that argument have serious holes?",
+  "What's the single worst fusion cuisine combination you've encountered — what was it and where?",
+  "Is a wine pairing menu a genuine enhancement or the restaurant finding a way to charge you more?",
+  "What UK supermarket has the best own-brand range and which one is genuinely depressing?",
+  "Is the Sunday roast overrated or is anyone who says that simply wrong?",
+  "What food have you eaten abroad that you'd pay any amount to have in the UK?",
+  "Should alcohol be sold in cinemas — make the argument for and against?",
+  "What's the most chaotic thing you've ever cooked for guests that you served anyway?",
+  "Is the British obsession with queuing for food (Bake Off, BBQ joints, etc.) embarrassing or admirable?",
+  "What's the worst thing a host has ever served you that you had to eat with a straight face?",
+  "Is the craft beer movement genuinely interesting or just expensive beer with a beard attached?",
+  "What's the most expensive restaurant experience you've had — was it worth it, honestly?",
+  "Should meal kits like HelloFresh be embarrassing to admit you use or are they actually fine?",
+  "What's the single dish that every pub in Britain does wrong that they think they're doing right?",
+  "Is the 'clean eating' movement a genuine wellness approach or a dietary disorder with good branding?",
+  "What food do you eat on your birthday every year without fail — and where does that tradition come from?",
+  "Should foie gras be banned in the UK — what's the strongest argument on each side?",
+  "What's the worst airline food you've ever had — and did you eat all of it anyway?",
+  "Is brunch a meal or just breakfast with worse service and a cocktail tax?",
+  "What's the most pretentious thing you've said about food that you actually meant?",
+  "Which celebrity chef has the biggest gap between their public image and what their restaurants actually deliver?",
+  "Is there a food that is genuinely culturally significant to you that you can't get easily where you live?",
+  "What's the single worst thing that can happen at a dinner party — the food crime, not the social one?",
+  "Should children be given the exact same food as adults at dinner or is that a parenting hill worth dying on?",
+  "What's the snack you eat that you'd be most embarrassed for a nutritionist to see?",
+  "Is tapas a brilliant concept or just a way to not commit to one thing and spend twice as much?",
+  "What's the dish you order every time you see it on a menu, regardless of what else is available?",
+  "Is British cheese genuinely world-class or are we just being patriotic about Cheddar?",
+  "What's the food memory that immediately makes you think of someone who's no longer around?",
+  "If you had to eat the same meal every day for a year, what do you pick and what does that say about you?"
+],
+
+travel: [
+  "What's the most overrated city in Europe that everyone tells you you must visit?",
+  "Is Airbnb destroying communities or is that an exaggeration — what's your actual take?",
+  "What's the single most terrifying thing that has happened to you on a plane?",
+  "Is travelling through a country on a two-week holiday genuinely enriching or mostly just box-ticking?",
+  "What's the worst holiday you've ever booked that looked perfect on paper?",
+  "Should tourists be fined for bad behaviour in places like Venice, Barcelona, and Santorini?",
+  "Is a first-class flight ever actually worth the money — when does the maths work out?",
+  "What's the most overpriced tourist trap you've paid to enter and immediately regretted?",
+  "Is gap year travel self-improvement or wealthy people rebranding a holiday as character building?",
+  "What's the most dangerous situation you've been in while travelling — how did you get out of it?",
+  "Is it embarrassing to go back to the same place every year or is that just knowing what you like?",
+  "What's the most boring country you've visited — and are you allowed to say that?",
+  "Should tourists be required to learn basic phrases of the local language before visiting?",
+  "What's the worst hotel you've stayed in — describe it without making it sound romantic?",
+  "Is travelling to countries with appalling human rights records morally defensible?",
+  "What's the single best meal you've had abroad — where was it, what was it?",
+  "Is Las Vegas a genuinely interesting city or an elaborate trap for people who don't like nature?",
+  "What's the most you've ever spent on a hotel night — was it worth it?",
+  "Should British people be embarrassed by how we behave abroad — is it a class thing, a culture thing, or both?",
+  "What's the most surreal or bizarre thing you've witnessed in another country that you still think about?",
+  "Is New York actually the best city in the world or is that mostly a marketing operation?",
+  "What's the worst person you've ever been seated next to on a long-haul flight?",
+  "Is going interrailing as an adult a genuinely good idea or mainly a nostalgia project?",
+  "What's the most you've ever been ripped off in a foreign country — and did you see it coming?",
+  "Should cruise ships be banned from major port cities — are they actually destroying the places they visit?",
+  "What's the most beautiful place you've been to that didn't make it onto anyone's Instagram?",
+  "Is Paris actually romantic or is it just good at making people feel like it's romantic?",
+  "What do you genuinely think of British tourists abroad — honestly, without being diplomatic?",
+  "What's the most ill-advised solo travel decision you've ever made?",
+  "Is the phrase 'travelling, not tourism' the most irritating sentence in the English language?",
+  "What's the place you visited where you felt the most genuinely unsafe, and what happened?",
+  "Should governments limit the number of tourists allowed in UNESCO World Heritage Sites per day?",
+  "What's the most disgusting hostel bathroom you've had to use and did you still use it?",
+  "Is Japan as extraordinary as everyone says or is some of the obsession a bit exoticising?",
+  "What's the flight delay from hell — how long was it, where were you, what did you do?",
+  "Is ecotourism actually eco or is it just expensive camping with a story?",
+  "What's a country you thought you'd love and didn't — and what went wrong?",
+  "Should solo women travelling face less judgement or does concern for safety come from a fair place?",
+  "Is Glastonbury worth the money and the mud, or has it become something it wasn't supposed to be?",
+  "What's the most interesting conversation you've had with a stranger in another country?",
+  "Should there be a global tourist tax that goes directly to the communities being visited?",
+  "What's the thing you always pack that you've never once used — and are you going to stop packing it?",
+  "Is the Amalfi Coast as beautiful as it looks or mainly just extremely difficult to drive through?",
+  "What's the worst travel companion you've ever had — without naming names, what were the signs?",
+  "Is it possible to properly experience a new city in less than 72 hours or is that always surface level?",
+  "What destination do you keep telling people is underrated that actually isn't underrated anymore?",
+  "Should airlines be forced to make economy class seats larger — what would happen to ticket prices?",
+  "What's the most wrong your travel expectations have ever been — in either direction?",
+  "Is travelling with children basically a different hobby to travelling without them — or is that too harsh?",
+  "What's the single piece of travel advice you'd give that most travel guides get completely wrong?"
+],
+
+music: [
+  "Is Oasis actually good or have they just been listened to by enough drunk people to seem important?",
+  "Who had the best decade in music — the 70s, 80s, or 90s — and what makes it inarguable?",
+  "Is Taylor Swift a great songwriter or the most successful average songwriter in history?",
+  "What's the most overplayed song at every wedding, ever — and who's responsible for that?",
+  "Is Kanye West's music separable from Kanye West the person — and has your answer changed over time?",
+  "What band split up for money or ego reasons that could have been one of the all-time greats if they'd stayed together?",
+  "Is streaming killing music or saving it — who's actually winning from it and who's losing?",
+  "What's the single most overrated album in music history that everyone treats as untouchable?",
+  "Is Glastonbury better when the headliner is controversial or does the internet ruin the argument before the show?",
+  "Which band reunion was a good idea and which one was just embarrassing — name both?",
+  "What's the most objectively bad song that you know all the words to?",
+  "Is Spotify the best thing that happened to music discovery or the worst thing that happened to artist income?",
+  "Who is the most technically gifted musician alive right now that nobody outside their fanbase talks about?",
+  "What's the single most depressing thing about the current state of the UK music industry?",
+  "Is a live DJ set an actual performance or just pressing play — when does it become the former?",
+  "What's the worst gig you've ever been to — was it the band, the venue, the crowd, or the price?",
+  "Should music be taught differently in schools — is the current curriculum why most people say they're not musical?",
+  "What's the cover that's so good it makes you forget the original even existed?",
+  "Is the music industry systematically racist, sexist, and ageist — or is it just competitive in the same ways everything is?",
+  "What's the most pretentious music take you hold that you'd defend until the end?",
+  "Is Radiohead actually genius or is it music designed to make people feel intelligent for listening to it?",
+  "What's the song that was played at the worst possible moment in your life — and does it still feel ruined?",
+  "Should artists who hold objectionable political views be dropped from festival lineups — where's your line?",
+  "What's the worst music video ever made by a genuinely great artist — what went wrong?",
+  "Is music snobbery worse in any particular genre, or is it equally insufferable across all of them?",
+  "Who got more famous than their talent warranted — name someone and argue the case?",
+  "What's the most chaotic or disastrous live performance you've witnessed — was it brilliant or just bad?",
+  "Is vinyl a genuine sonic experience or a lifestyle product for people who want a personality?",
+  "What's the saddest end to a band's story — the split, the decline, or the reunion that shouldn't have happened?",
+  "Is the three-minute pop song the greatest art form or the most limiting constraint in music history?",
+  "Who was more influential: The Beatles or The Rolling Stones — and is that actually a difficult question?",
+  "What's the worst song to be played at a funeral that someone has definitely played at a funeral?",
+  "Is hip-hop the most important musical movement of the last 50 years — what's the argument against it?",
+  "Which musician's public persona is the most obviously constructed — and does it matter if the music is good?",
+  "What's the most annoying genre of music that you can objectively see has genuine craft in it?",
+  "Should musicians be paid more from streaming — and who would actually pay for that if they were?",
+  "What's the one song you'd remove from the universe if you could — and what effect would it have?",
+  "Is there a music scene right now that in twenty years will be seen as the most important of this era?",
+  "What's the biggest beef in music history that was justified — and the one that was completely petty?",
+  "Is Auto-Tune a creative tool or proof that record labels don't care about singing anymore?",
+  "What's the most overused sample in music — and does the original artist deserve more credit?",
+  "Is music journalism still relevant or has it been replaced by algorithms and stan Twitter?",
+  "What's the worst thing a musician has done publicly that you've forgiven purely because of the music?",
+  "Is the concept album a dying format or are there artists currently making the best ones ever?",
+  "What's a song that every generation thinks they discovered first but actually predates all of them?",
+  "Is classical music genuinely accessible to people who weren't raised with it or is that wishful thinking?",
+  "What instrument makes the least interesting solo — is there a clear answer?",
+  "Should music education in schools focus on contemporary music instead of recorder and sheet music theory?",
+  "What's the song you'd put on to win an argument about music with someone who thinks they know everything?",
+  "Is the era of the iconic album cover dead and does that actually matter?"
+],
+
+people: [
+  "Is Elon Musk a genius, a lucky troll, or something more complicated — give your actual read?",
+  "Who is the most overrated intellectual alive right now — someone treated as a thinker who you think has been found out?",
+  "Is Mark Zuckerberg genuinely trying to build something good or is everything he does self-serving — can you separate the two?",
+  "Who's the most interesting politician in the world right now — not the most powerful, the most interesting?",
+  "Which celebrity couple do you find most inexplicable — not in a mean way, but genuinely, what do you think is going on there?",
+  "Was Steve Jobs a visionary or a bully who happened to be right about everything — can he be both?",
+  "Who is the most famous person you've met, and what did they do that confirmed or destroyed your impression of them?",
+  "Which public figure has surprised you most by being better in real life than their public persona?",
+  "Who is the politician from history that today's parties would most want to claim but would immediately disagree with?",
+  "Is Jeff Bezos someone who built something extraordinary or someone who got rich by treating workers badly — is there a defensible middle?",
+  "Who is the most talented person in any field who is also clearly terrible to be around?",
+  "Which celebrity apology in recent years was the most obviously fake — what gave it away?",
+  "Who's the public figure that you think is quietly running things in a way nobody talks about?",
+  "Is the Dalai Lama as enlightened as advertised or has he said enough strange things to complicate the image?",
+  "Which footballer's off-pitch behaviour should change how they're remembered — or should sport and character be separate?",
+  "Who had the most catastrophic fall from grace in the last decade — and was it inevitable or avoidable?",
+  "Is Oprah Winfrey a force for good, a billionaire with good branding, or are those the same thing?",
+  "Which political dynasty does the most damage — the Bushes, the Clintons, or your own country's equivalent?",
+  "Who is the public intellectual that you think has been most wrong about the most things but still gets invited on panels?",
+  "Which living artist do you think genuinely changed their medium — not just in their time but permanently?",
+  "Is Andrew Tate a symptom of something real or a con man who found a gap in the market — and does the answer matter?",
+  "Who is the most unfairly maligned public figure in the last ten years — someone the pile-on got wrong?",
+  "Which world leader right now has the hardest job and is handling it best, even if imperfectly?",
+  "Is the royal family individually interesting people trapped in an institution, or are they the institution?",
+  "Who is the most famous person who is clearly unhappy — and is it obvious to everyone but them?",
+  "Which tech billionaire do you trust the most to actually try to solve a real problem — and why do you trust them?",
+  "Who is the person in public life that has the biggest gap between their stated values and their actual behaviour?",
+  "Is Piers Morgan a useful irritant in public discourse or just an irritant — what's the case for the former?",
+  "Which sportsperson would you have trusted to run a country better than the politicians of their era?",
+  "Is Greta Thunberg's approach to climate activism effective or does it alienate the people who need convincing?",
+  "Who is the most dangerous person in global politics right now — not most powerful, most dangerous?",
+  "Which author, philosopher, or thinker do you think is most widely misread — people use them for things they'd hate?",
+  "Is Taylor Swift's business savvy impressive, exhausting, or both — and does it affect how you hear the music?",
+  "Who had the most interesting second act in public life — the comeback, the reinvention, the pivot?",
+  "Which TV presenter or journalist do you think is significantly smarter than they're allowed to show on screen?",
+  "Is Boris Johnson a political genius who ran out of road or a narcissist who got away with it for too long?",
+  "Which scientist alive today do you think will be the most cited in 100 years — and for what?",
+  "Is Prince Harry's book and media campaign brave, embarrassing, or just badly judged — give your verdict?",
+  "Who is the most interesting person working in AI right now — not the richest, the most interesting?",
+  "Is Gordon Brown someone history will rehabilitate — was his reputation destroyed unfairly?",
+  "Which celebrity's political opinions do you find surprisingly well-reasoned — and does it change anything?",
+  "Who is the public figure that you think is putting on the most obviously false front — and what are they hiding?",
+  "Is the Pope an important world figure or a figurehead who could say anything and nothing would change?",
+  "Who is the most overexposed person in public life right now — someone whose omnipresence has become its own story?",
+  "Which former world leader do you think has handled their post-power years best?",
+  "Is Rishi Sunak genuinely intelligent and unlucky, or genuinely intelligent and deeply out of touch?",
+  "Which person in history do you think got the worst deal from their biographers — someone whose real story is much better?",
+  "Is the cult of the entrepreneur — Musk, Bezos, Branson — healthy or does it concentrate too much narrative power in one idea of success?",
+  "Who is the best political speaker alive — not in terms of their politics, just the craft?",
+  "Which person in public life do you think will be completely reassessed in 20 years — upward or downward?"
+],
+
+science: [
+  "Should we be genuinely afraid of AGI right now, or is the fear mostly Silicon Valley self-importance?",
+  "Is nuclear power the obvious answer to the energy crisis and if so, why are we not building dozens of plants?",
+  "What will AI replace first — lawyers, doctors, or therapists — and what's your actual prediction?",
+  "Should CRISPR editing of human embryos be legal right now — what are the best arguments on each side?",
+  "Is a manned mission to Mars in the next 20 years achievable or is it a multi-billionaire vanity project?",
+  "Should social media algorithms be regulated as a public health issue — same as cigarettes?",
+  "Is quantum computing going to break all current encryption in our lifetime — how worried should we be?",
+  "Should there be a pause on AI development while governments figure out regulation — who benefits from a yes, who benefits from a no?",
+  "Is the idea of uploading your consciousness to a computer actually you surviving, or just a copy of you surviving?",
+  "Should human gene editing to prevent hereditary diseases be available on the NHS?",
+  "Is the Fermi Paradox — the fact that we've found no alien life — terrifying or just interesting?",
+  "Should deepfake technology be made illegal to produce without explicit consent — can it even be enforced?",
+  "Will electric vehicles actually save the planet or is the battery supply chain just a different kind of damage?",
+  "Is Neuralink a genuinely important medical technology or just Elon Musk drilling into people's heads for attention?",
+  "Should there be an international treaty banning autonomous weapons — and would the countries that matter actually sign it?",
+  "Is the 'move fast and break things' philosophy of Silicon Valley the reason AI is being built so carelessly?",
+  "What's the single scientific development in the last decade that most people haven't noticed but will matter most?",
+  "Should we try to extend human lifespan to 150 — and what would that actually do to society?",
+  "Is dark matter actually real or is it just a placeholder for things we don't understand yet?",
+  "Should the UK build a new generation of nuclear power stations — and why hasn't it?",
+  "Is the metaverse dead, early, or just waiting for the right hardware to become genuinely important?",
+  "Should AI companies have to release their training data publicly — what's the argument against it?",
+  "Is microplastics in the food chain the most underreported health crisis in the world right now?",
+  "Should space be treated as a global commons — or has that ship sailed now that private companies are launching?",
+  "Is lab-grown meat going to replace conventional meat farming by 2040 — what would have to happen for that to be true?",
+  "Should there be a global tax on tech companies' AI profits to fund workers displaced by automation?",
+  "Is the Great Filter — the idea that civilisations always destroy themselves before going interstellar — basically confirmed by human history?",
+  "Should parents be allowed to genetically select for intelligence, athleticism, or height in embryos?",
+  "Is the current AI boom a bubble that will burst like the dot-com crash, or is this different?",
+  "Should there be mandatory digital literacy education from age 5 — what would it actually teach?",
+  "Is the obesity drug revolution (GLP-1s like Ozempic) genuinely transformative or a Band-Aid on a systemic problem?",
+  "Should autonomous cars be allowed on UK roads right now — what's the actual hold-up?",
+  "Is geoengineering (artificially cooling the planet) a genuine last resort or are we creating a new problem?",
+  "Should social media have a minimum age of 16 enforced by ID checks — and would it work?",
+  "What scientific consensus do you find genuinely hard to square with the way you live your life?",
+  "Should there be a moratorium on training AI models larger than GPT-4 until there are international safety standards?",
+  "Is the COVID-19 lab leak hypothesis more or less credible now than it was — what does the current evidence suggest?",
+  "Should asteroid mining be regulated as an international resource or is it first come, first served?",
+  "Is antibiotic resistance the most likely catastrophe that nobody is talking about at the right scale?",
+  "Should Google, Microsoft, and OpenAI be broken up under anti-trust law for their AI dominance?",
+  "What's the most terrifying technology that already exists that you don't think enough people know about?",
+  "Should we terraform Mars even if it turns out there's microbial life there — does that life have rights?",
+  "Is the brain a computer — and does the answer to that question matter for how we think about AI consciousness?",
+  "Should parents be able to opt their children out of facial recognition in schools?",
+  "Is 5G genuinely going to change the world or was that always mostly a vendor pitch?",
+  "Should the development of AGI (general human-level AI) be owned by a private company or is that obviously insane?",
+  "What do you think is the single most important scientific question humanity hasn't answered yet?",
+  "Is the simulation hypothesis — the idea we're living in a simulation — a scientific hypothesis or just philosophy with maths?",
+  "Should private companies like SpaceX be allowed to colonise the moon without international agreement?",
+  "What technology currently exists that you think is most likely to be looked back on as the moment everything changed?"
+]
+
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let currentCategory = null;
+let shuffledQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let passesLeft = 3;
+let timerInterval = null;
+let secondsLeft = 300;
+let timerRunning = false;
+const TOTAL_TIME = 300;
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  GAME LOGIC
+// ══════════════════════════════════════════
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+const CAT_NAMES = {
+  history: 'History', film: 'Film & TV', current: 'Current Affairs',
+  personal: 'Personal', food: 'Food & Drink', travel: 'Travel & Places',
+  music: 'Music', people: 'Famous People', science: 'Science & Tech'
+};
+
+function startGame(cat) {
+  currentCategory = cat;
+  shuffledQuestions = shuffle(QUESTIONS[cat]);
+  currentIndex = 0;
+  score = 0;
+  passesLeft = 3;
+  secondsLeft = TOTAL_TIME;
+  timerRunning = false;
+
+  // Reset UI
+  document.getElementById('cat-badge').textContent = CAT_NAMES[cat];
+  document.getElementById('timer-display').textContent = '5:00';
+  document.getElementById('timer-display').classList.remove('urgent');
+  document.getElementById('timer-bar').style.width = '100%';
+  document.getElementById('timer-bar').classList.remove('urgent');
+  document.getElementById('timer-controls').style.display = 'flex';
+
+  updatePips();
+  updateStats();
+  renderQuestion();
+
+  document.getElementById('btn-pass').disabled = false;
+  showScreen('game-screen');
+}
+
+function renderQuestion() {
+  if (currentIndex >= shuffledQuestions.length) {
+    endRound(false);
+    return;
+  }
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = '';
+
+  document.getElementById('q-number').textContent = `Question ${currentIndex + 1}`;
+  document.getElementById('q-text').textContent = shuffledQuestions[currentIndex];
+  updateStats();
+}
+
+function gotIt() {
+  score++;
+  currentIndex++;
+  renderQuestion();
+}
+
+function passQ() {
+  if (passesLeft <= 0) return;
+  passesLeft--;
+  updatePips();
+  updateStats();
+  if (passesLeft === 0) {
+    document.getElementById('btn-pass').disabled = true;
+  }
+  currentIndex++;
+  renderQuestion();
+}
+
+function updatePips() {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('pip' + i).classList.toggle('used', i > passesLeft);
+  }
+}
+
+function updateStats() {
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('passes-display').textContent = passesLeft;
+  document.getElementById('qnum-display').textContent = Math.min(currentIndex + 1, shuffledQuestions.length);
+  document.getElementById('qtotal-display').textContent = shuffledQuestions.length;
+}
+
+// ══════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  document.getElementById('timer-controls').style.display = 'none';
+
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    const pct = (secondsLeft / TOTAL_TIME) * 100;
+    const mins = Math.floor(secondsLeft / 60);
+    const secs = secondsLeft % 60;
+    const display = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+    document.getElementById('timer-display').textContent = display;
+    document.getElementById('timer-bar').style.width = pct + '%';
+
+    const urgent = secondsLeft <= 30;
+    document.getElementById('timer-display').classList.toggle('urgent', urgent);
+    document.getElementById('timer-bar').classList.toggle('urgent', urgent);
+
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      endRound(false);
+    }
+  }, 1000);
+}
+
+function endRound(manual) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+
+  const overlay = document.getElementById('end-overlay');
+  document.getElementById('overlay-title').textContent = manual ? 'Round ended' : "Time's up!";
+  document.getElementById('overlay-score').textContent = score;
+  document.getElementById('overlay-msg').textContent = score === 1 ? 'question answered' : 'questions answered';
+  overlay.classList.add('show');
+}
+
+function playAgainSameCategory() {
+  document.getElementById('end-overlay').classList.remove('show');
+  startGame(currentCategory);
+}
+</script>
+</body>
+</html>
