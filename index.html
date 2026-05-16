@@ -589,8 +589,8 @@
   <p id="overlay-msg">questions answered</p>
   <div class="overlay-btns">
     <button class="btn-primary" onclick="playAgainSameCategory()">Play Again (same)</button>
-    <button class="btn-outline" onclick="showScreen('category-screen')">Pick New Category</button>
-    <button class="btn-outline" onclick="showScreen('home')">Home</button>
+<button class="btn-outline" onclick="document.getElementById('end-overlay').classList.remove('show'); showScreen('category-screen')">Pick New Category</button>
+    <button class="btn-outline" onclick="document.getElementById('end-overlay').classList.remove('show'); showScreen('home')">Home</button>
   </div>
 </div>
 
@@ -1052,8 +1052,14 @@ function endRound(manual) {
   clearInterval(timerInterval);
   timerRunning = false;
 
+  if (manual) {
+    document.getElementById('end-overlay').classList.remove('show');
+    showScreen('category-screen');
+    return;
+  }
+
   const overlay = document.getElementById('end-overlay');
-  document.getElementById('overlay-title').textContent = manual ? 'Round ended' : "Time's up!";
+  document.getElementById('overlay-title').textContent = "Time's up!";
   document.getElementById('overlay-score').textContent = score;
   document.getElementById('overlay-msg').textContent = score === 1 ? 'question answered' : 'questions answered';
   overlay.classList.add('show');
