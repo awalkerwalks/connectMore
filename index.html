@@ -386,16 +386,6 @@
 
   .stat-pill span { color: var(--amber-light); font-weight: 500; }
 
-  /* Pass pips */
-  .pass-pips {
-    display: flex; gap: 4px; align-items: center;
-  }
-  .pip {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--rust);
-    transition: background 0.3s;
-  }
-  .pip.used { background: rgba(255,255,255,0.15); }
 
   /* Timer controls */
   .timer-controls {
@@ -515,6 +505,73 @@
   white-space: nowrap;
 }
 .game-menu button:hover { background: rgba(255,255,255,0.08); }
+
+  /* ── SETUP SCREEN ── */
+#setup-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.setup-wrap {
+  width: 100%; max-width: 480px;
+  text-align: center;
+}
+.setup-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--cream);
+  margin-bottom: 1.5rem;
+}
+.player-count-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.player-count-row span {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--cream);
+  min-width: 100px;
+}
+.count-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--cream);
+  font-size: 1.4rem;
+  width: 2.5rem; height: 2.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.2s;
+}
+.count-btn:hover { background: rgba(255,255,255,0.15); }
+.player-input-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.player-num-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--amber-light);
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.player-name-input {
+  flex: 1;
+  background: rgba(245,239,224,0.07);
+  border: 1px solid rgba(245,239,224,0.18);
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: var(--cream);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.player-name-input::placeholder { color: rgba(245,239,224,0.25); }
+.player-name-input:focus { border-color: rgba(245,239,224,0.4); }
   /* Responsive */
   @media (max-width: 420px) {
     .grid { gap: 0.6rem; }
@@ -532,9 +589,23 @@
   <h1 class="title">Opinia<br><em>Trivia with your opinion</em></h1>
   <div class="decoration"></div>
   <p class="subtitle">Pick a category · 5 minutes · do you know it? Have an opinion?</p>
-  <button class="btn-primary" onclick="showScreen('category-screen')">Let's Play</button>
+<button class="btn-primary" onclick="showScreen('setup-screen')">Let's Play</button>
 </div>
 
+  <!-- ═══════════════════════════ SETUP ═══════════════════════════ -->
+<div id="setup-screen" class="screen">
+  <div class="setup-wrap">
+    <h2 class="setup-title">Who's playing?</h2>
+    <div class="player-count-row">
+      <button class="count-btn" onclick="setPlayerCount(Math.max(2, playerCount - 1))">−</button>
+      <span id="player-count-display">2 players</span>
+      <button class="count-btn" onclick="setPlayerCount(Math.min(6, playerCount + 1))">+</button>
+    </div>
+    <div id="player-inputs"></div>
+    <button class="btn-primary" style="width:100%;margin-top:1.5rem" onclick="confirmSetup()">Continue</button>
+  </div>
+</div>
+  
 <!-- ═══════════════════════════ CATEGORIES ═══════════════════════════ -->
 <div id="category-screen" class="screen">
   <div class="screen-header" style="margin-top:2rem;">
@@ -583,14 +654,7 @@
 <div class="game-header">
     <button class="back-btn" onclick="endRound(true)">← Categories</button>
     <div class="cat-badge" id="cat-badge">History</div>
-    <div style="display:flex;align-items:center;gap:0.75rem;">
-      <div class="pass-pips">
-        <div class="pip" id="pip1"></div>
-        <div class="pip" id="pip2"></div>
-        <div class="pip" id="pip3"></div>
-      </div>
-      <button class="menu-btn" onclick="toggleMenu()">⋯</button>
-    </div>
+<button class="menu-btn" onclick="toggleMenu()">⋯</button>
   </div>
 
   <div class="game-menu" id="game-menu">
@@ -621,10 +685,10 @@
     <button class="btn-pass" id="btn-pass" onclick="passQ()">Pass</button>
   </div>
 
-  <div class="stats-row">
-    <div class="stat-pill">Score <span id="score-display">0</span></div>
-    <div class="stat-pill">Passes left <span id="passes-display">3</span></div>
-    <div class="stat-pill">Q <span id="qnum-display">1</span> / <span id="qtotal-display">50</span></div>
+<div class="stats-row">
+    <div class="stat-pill" id="current-player-pill">Player 1 <span id="score-display">0</span></div>
+    <div class="stat-pill">Passes <span id="passes-display">3</span></div>
+    <div class="stat-pill">Q <span id="qnum-display">1</span>/<span id="qtotal-display">50</span></div>
   </div>
 </div>
 
@@ -632,8 +696,9 @@
 <div class="overlay" id="end-overlay">
   <p class="logo-eyebrow" style="color:var(--amber-light)">Round Over</p>
   <h2 id="overlay-title">Time's up!</h2>
-  <div class="big-score" id="overlay-score">0</div>
-  <p id="overlay-msg">questions answered</p>
+<div class="big-score" id="overlay-score">0</div>
+  <p id="overlay-msg">topics answered</p>
+  <div id="all-scores" style="margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;"></div>
   <div class="overlay-btns">
     <button class="btn-primary" onclick="playAgainSameCategory()">Play Again (same)</button>
 <button class="btn-outline" onclick="document.getElementById('end-overlay').classList.remove('show'); showScreen('category-screen')">Pick New Category</button>
@@ -964,15 +1029,22 @@ weird: [
 // ══════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════
+let players = [];
+let activePlayerIndex = 0;
+let playerCount = 2;
 let currentCategory = null;
 let shuffledQuestions = [];
 let currentIndex = 0;
-let score = 0;
 let passesLeft = 3;
 let timerInterval = null;
 let secondsLeft = 300;
 let timerRunning = false;
 const TOTAL_TIME = 300;
+
+const CAT_NAMES = {
+  history: 'History', popculture: 'Pop Culture', filmtv: 'Film & TV',
+  science: 'Science & Nature', british: 'Very British', weird: 'Weird & Wonderful'
+};
 
 // ══════════════════════════════════════════
 //  NAVIGATION
@@ -985,16 +1057,44 @@ function showScreen(id) {
 }
 
 // ══════════════════════════════════════════
+//  SETUP
+// ══════════════════════════════════════════
+function setPlayerCount(n) {
+  playerCount = n;
+  document.getElementById('player-count-display').textContent = n + ' player' + (n > 1 ? 's' : '');
+  const container = document.getElementById('player-inputs');
+  container.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    container.innerHTML += `
+      <div class="player-input-row">
+        <span class="player-num-label">Player ${i}</span>
+        <input class="player-name-input" id="pname-${i}" type="text" placeholder="Enter name…" maxlength="20">
+      </div>`;
+  }
+}
+
+function confirmSetup() {
+  players = [];
+  for (let i = 1; i <= playerCount; i++) {
+    const val = document.getElementById('pname-' + i).value.trim();
+    players.push({ name: val || 'Player ' + i, score: 0 });
+  }
+  activePlayerIndex = 0;
+  updateCategoryHeader();
+  showScreen('category-screen');
+}
+
+function updateCategoryHeader() {
+  const p = document.querySelector('#category-screen .screen-header p');
+  if (p) p.textContent = players[activePlayerIndex].name + ' is answering — 5 minutes & 3 passes';
+}
+
+// ══════════════════════════════════════════
 //  GAME LOGIC
 // ══════════════════════════════════════════
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
-
-const CAT_NAMES = {
-  history: 'History', popculture: 'Pop Culture', filmtv: 'Film & TV',
-  science: 'Science & Nature', british: 'Very British', weird: 'Weird & Wonderful'
-};
 
 function startGame(cat) {
   document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
@@ -1002,12 +1102,10 @@ function startGame(cat) {
   currentCategory = cat;
   shuffledQuestions = shuffle(QUESTIONS[cat]);
   currentIndex = 0;
-  score = 0;
   passesLeft = 3;
   secondsLeft = TOTAL_TIME;
   timerRunning = false;
 
-  // Reset UI
   document.getElementById('cat-badge').textContent = CAT_NAMES[cat];
   document.getElementById('timer-display').textContent = '5:00';
   document.getElementById('timer-display').classList.remove('urgent');
@@ -1015,7 +1113,6 @@ function startGame(cat) {
   document.getElementById('timer-bar').classList.remove('urgent');
   document.getElementById('timer-controls').style.display = 'flex';
 
-  updatePips();
   updateStats();
   renderQuestion();
 
@@ -1027,16 +1124,14 @@ function renderQuestion() {
   if (currentIndex >= shuffledQuestions.length) { endRound(false); return; }
   const card = document.getElementById('question-card');
   card.style.animation = 'none'; card.offsetHeight; card.style.animation = '';
-  document.getElementById('q-number').textContent = `Question ${currentIndex + 1}`;
-  const item = shuffledQuestions[currentIndex];
-document.getElementById('q-text').textContent = item.q;
+  document.getElementById('q-number').textContent = 'Question ' + (currentIndex + 1);
+  document.getElementById('q-text').textContent = shuffledQuestions[currentIndex].q;
   document.getElementById('q-hint').textContent = '';
   updateStats();
 }
 
-
 function gotIt() {
-  score++;
+  players[activePlayerIndex].score++;
   currentIndex++;
   renderQuestion();
 }
@@ -1044,23 +1139,16 @@ function gotIt() {
 function passQ() {
   if (passesLeft <= 0) return;
   passesLeft--;
-  updatePips();
   updateStats();
-  if (passesLeft === 0) {
-    document.getElementById('btn-pass').disabled = true;
-  }
+  if (passesLeft === 0) document.getElementById('btn-pass').disabled = true;
   currentIndex++;
   renderQuestion();
 }
 
-function updatePips() {
-  for (let i = 1; i <= 3; i++) {
-    document.getElementById('pip' + i).classList.toggle('used', i > passesLeft);
-  }
-}
-
 function updateStats() {
-  document.getElementById('score-display').textContent = score;
+  const p = players[activePlayerIndex];
+  document.getElementById('current-player-pill').innerHTML =
+    (p ? p.name : 'Player') + ' <span id="score-display">' + (p ? p.score : 0) + '</span>';
   document.getElementById('passes-display').textContent = passesLeft;
   document.getElementById('qnum-display').textContent = Math.min(currentIndex + 1, shuffledQuestions.length);
   document.getElementById('qtotal-display').textContent = shuffledQuestions.length;
@@ -1073,54 +1161,63 @@ function startTimer() {
   if (timerRunning) return;
   timerRunning = true;
   document.getElementById('timer-controls').style.display = 'none';
-
   timerInterval = setInterval(() => {
     secondsLeft--;
     const pct = (secondsLeft / TOTAL_TIME) * 100;
     const mins = Math.floor(secondsLeft / 60);
     const secs = secondsLeft % 60;
-    const display = `${mins}:${secs.toString().padStart(2, '0')}`;
-
-    document.getElementById('timer-display').textContent = display;
+    document.getElementById('timer-display').textContent = mins + ':' + secs.toString().padStart(2, '0');
     document.getElementById('timer-bar').style.width = pct + '%';
-
     const urgent = secondsLeft <= 30;
     document.getElementById('timer-display').classList.toggle('urgent', urgent);
     document.getElementById('timer-bar').classList.toggle('urgent', urgent);
-
-    if (secondsLeft <= 0) {
-      clearInterval(timerInterval);
-      endRound(false);
-    }
+    if (secondsLeft <= 0) { clearInterval(timerInterval); endRound(false); }
   }, 1000);
 }
+
+// ══════════════════════════════════════════
+//  ROUND END
+// ══════════════════════════════════════════
+function endRound(manual) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  closeMenu();
+
+  if (manual) {
+    showScreen('category-screen');
+    return;
+  }
+
+  const p = players[activePlayerIndex];
+  document.getElementById('overlay-title').textContent = "Time's up!";
+  document.getElementById('overlay-score').textContent = p.score;
+  document.getElementById('overlay-msg').textContent = p.name + ' answered ' + p.score + (p.score === 1 ? ' topic' : ' topics');
+
+  const allScores = document.getElementById('all-scores');
+  allScores.innerHTML = players.map(pl =>
+    '<div class="score-chip"><span class="score-chip-name">' + pl.name + '</span><span class="score-chip-num">' + pl.score + '</span></div>'
+  ).join('');
+
+  document.getElementById('end-overlay').classList.add('show');
+}
+
+function playAgainSameCategory() {
+  document.getElementById('end-overlay').classList.remove('show');
+  // move to next player
+  activePlayerIndex = (activePlayerIndex + 1) % players.length;
+  updateCategoryHeader();
+  startGame(currentCategory);
+}
+
+// ══════════════════════════════════════════
+//  MENU
+// ══════════════════════════════════════════
 function toggleMenu() {
   document.getElementById('game-menu').classList.toggle('open');
 }
 
 function closeMenu() {
   document.getElementById('game-menu').classList.remove('open');
-}
-function endRound(manual) {
-  clearInterval(timerInterval);
-  timerRunning = false;
-
-  if (manual) {
-    document.getElementById('end-overlay').classList.remove('show');
-    showScreen('category-screen');
-    return;
-  }
-
-  const overlay = document.getElementById('end-overlay');
-  document.getElementById('overlay-title').textContent = "Time's up!";
-  document.getElementById('overlay-score').textContent = score;
-  document.getElementById('overlay-msg').textContent = score === 1 ? 'question answered' : 'questions answered';
-  overlay.classList.add('show');
-}
-
-function playAgainSameCategory() {
-  document.getElementById('end-overlay').classList.remove('show');
-  startGame(currentCategory);
 }
 </script>
 </body>
