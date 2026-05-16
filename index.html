@@ -26,6 +26,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
+    html { scroll-behavior: smooth; }
     font-family: 'DM Sans', sans-serif;
     background: var(--ink);
     min-height: 100vh;
@@ -930,10 +931,10 @@ const TOTAL_TIME = 300;
 //  NAVIGATION
 // ══════════════════════════════════════════
 function showScreen(id) {
-  const next = document.getElementById(id);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const next = document.getElementById(id);
   next.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  next.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ══════════════════════════════════════════
