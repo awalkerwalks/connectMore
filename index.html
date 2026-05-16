@@ -572,6 +572,67 @@
 }
 .player-name-input::placeholder { color: rgba(245,239,224,0.25); }
 .player-name-input:focus { border-color: rgba(245,239,224,0.4); }
+
+  /* ── SCOREBOARD ── */
+#scoreboard-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.scoreboard-wrap {
+  width: 100%; max-width: 480px;
+}
+.scoreboard-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: var(--cream);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.scoreboard-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+  background: rgba(245,239,224,0.05);
+  border: 1px solid rgba(245,239,224,0.1);
+  transition: background 0.2s;
+}
+.scoreboard-row.gold {
+  background: rgba(212,130,10,0.2);
+  border-color: rgba(212,130,10,0.4);
+}
+.scoreboard-row.silver {
+  background: rgba(180,180,180,0.1);
+  border-color: rgba(180,180,180,0.25);
+}
+.scoreboard-row.bronze {
+  background: rgba(160,100,40,0.15);
+  border-color: rgba(160,100,40,0.3);
+}
+.scoreboard-position {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: rgba(245,239,224,0.35);
+  width: 2rem;
+}
+.scoreboard-row.gold .scoreboard-position { color: var(--amber-light); }
+.scoreboard-row.silver .scoreboard-position { color: #C0C0C0; }
+.scoreboard-row.bronze .scoreboard-position { color: #CD7F32; }
+.scoreboard-name {
+  flex: 1;
+  font-size: 1rem;
+  color: var(--cream);
+  padding: 0 0.75rem;
+}
+.scoreboard-score {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--cream);
+  min-width: 2.5rem;
+  text-align: right;
+}
   /* Responsive */
   @media (max-width: 420px) {
     .grid { gap: 0.6rem; }
@@ -699,13 +760,24 @@
 <div class="big-score" id="overlay-score">0</div>
   <p id="overlay-msg">topics answered</p>
   <div id="all-scores" style="margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;"></div>
-  <div class="overlay-btns">
-    <button class="btn-primary" onclick="playAgainSameCategory()">Play Again (same)</button>
-<button class="btn-outline" onclick="document.getElementById('end-overlay').classList.remove('show'); showScreen('category-screen')">Pick New Category</button>
-    <button class="btn-outline" onclick="document.getElementById('end-overlay').classList.remove('show'); showScreen('home')">Home</button>
+<div class="overlay-btns">
+    <button class="btn-primary" onclick="playAgainSameCategory()">Next Player</button>
+    <button class="btn-outline" onclick="document.getElementById('end-overlay').classList.remove('show'); showScreen('category-screen')">Pick New Category</button>
+    <button class="btn-outline" onclick="endGame()">End Game</button>
   </div>
 </div>
-
+<!-- ═══════════════════════════ SCOREBOARD ═══════════════════════════ -->
+<div id="scoreboard-screen" class="screen">
+  <div class="scoreboard-wrap">
+    <p class="logo-eyebrow" style="color:var(--amber-light);text-align:center">Game Over</p>
+    <h2 class="scoreboard-title">Final Scores</h2>
+    <div id="final-scores"></div>
+    <div class="overlay-btns" style="margin-top:2rem">
+      <button class="btn-primary" onclick="showScreen('setup-screen'); setPlayerCount(playerCount)">Play Again</button>
+      <button class="btn-outline" onclick="showScreen('home')">Home</button>
+    </div>
+  </div>
+</div>
 <script>
 // ══════════════════════════════════════════
 //  QUESTIONS DATABASE
@@ -1218,6 +1290,23 @@ function toggleMenu() {
 
 function closeMenu() {
   document.getElementById('game-menu').classList.remove('open');
+}
+  function endGame() {
+  document.getElementById('end-overlay').classList.remove('show');
+
+  const sorted = [...players].sort((a, b) => b.score - a.score);
+  const medals = ['gold', 'silver', 'bronze'];
+  const positions = ['1st', '2nd', '3rd', '4th', '5th', '6th'];
+
+  document.getElementById('final-scores').innerHTML = sorted.map((p, i) => `
+    <div class="scoreboard-row ${medals[i] || ''}">
+      <span class="scoreboard-position">${positions[i]}</span>
+      <span class="scoreboard-name">${p.name}</span>
+      <span class="scoreboard-score">${p.score}</span>
+    </div>
+  `).join('');
+
+  showScreen('scoreboard-screen');
 }
 </script>
 </body>
