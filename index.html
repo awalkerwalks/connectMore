@@ -476,6 +476,45 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  .menu-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--cream);
+  font-size: 1.2rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+.menu-btn:hover { background: rgba(255,255,255,0.12); }
+
+.game-menu {
+  display: none;
+  position: absolute;
+  top: 4.5rem;
+  right: 1rem;
+  z-index: 50;
+  background: #2A1E10;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.game-menu.open { display: block; }
+.game-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.game-menu button:hover { background: rgba(255,255,255,0.08); }
   /* Responsive */
   @media (max-width: 420px) {
     .grid { gap: 0.6rem; }
@@ -541,14 +580,22 @@
 
 <!-- ═══════════════════════════ GAME ═══════════════════════════ -->
 <div id="game-screen" class="screen">
-  <div class="game-header">
+<div class="game-header">
     <button class="back-btn" onclick="endRound(true)">← Back</button>
     <div class="cat-badge" id="cat-badge">History</div>
-    <div class="pass-pips">
-      <div class="pip" id="pip1"></div>
-      <div class="pip" id="pip2"></div>
-      <div class="pip" id="pip3"></div>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div class="pass-pips">
+        <div class="pip" id="pip1"></div>
+        <div class="pip" id="pip2"></div>
+        <div class="pip" id="pip3"></div>
+      </div>
+      <button class="menu-btn" onclick="toggleMenu()">⋯</button>
     </div>
+  </div>
+
+  <div class="game-menu" id="game-menu">
+    <button onclick="closeMenu(); document.getElementById('end-overlay').classList.remove('show'); showScreen('category-screen')">Pick New Category</button>
+    <button onclick="closeMenu(); document.getElementById('end-overlay').classList.remove('show'); showScreen('home')">Home</button>
   </div>
 
   <!-- Timer start button -->
@@ -1047,7 +1094,13 @@ function startTimer() {
     }
   }, 1000);
 }
+function toggleMenu() {
+  document.getElementById('game-menu').classList.toggle('open');
+}
 
+function closeMenu() {
+  document.getElementById('game-menu').classList.remove('open');
+}
 function endRound(manual) {
   clearInterval(timerInterval);
   timerRunning = false;
