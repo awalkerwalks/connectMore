@@ -44,8 +44,15 @@
   }
 
   /* ── SCREENS ── */
-  .screen { display: none; position: relative; z-index: 1; }
-  .screen.active { display: block; }
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
   /* ── HOME ── */
   #home {
@@ -923,8 +930,10 @@ const TOTAL_TIME = 300;
 //  NAVIGATION
 // ══════════════════════════════════════════
 function showScreen(id) {
+  const next = document.getElementById(id);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  next.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ══════════════════════════════════════════
