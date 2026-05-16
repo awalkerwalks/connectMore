@@ -166,7 +166,11 @@
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 16px 40px rgba(0,0,0,0.4);
   }
-  .cat-card.selected { border: 2px solid rgba(255,255,255,0.5); }
+.cat-card.selected {
+    border: 2px solid rgba(255,255,255,0.5);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
 
   .cat-card::before {
     content: ''; position: absolute; inset: 0;
@@ -193,7 +197,7 @@
   .cat-history    { background: linear-gradient(135deg, #2A2040, #3A1A30); }
   .cat-film       { background: linear-gradient(135deg, #1A2A1A, #2A3A0A); }
   .cat-current    { background: linear-gradient(135deg, #0A2A3A, #1A3A4A); }
-  .cat-personal   { background: linear-gradient(135deg, #6B2A10, #8B3A20); border: 2px solid rgba(240,168,48,0.5); }
+  .cat-personal   { background: linear-gradient(135deg, #6B2A10, #8B3A20); }
   .cat-food       { background: linear-gradient(135deg, #2A1A0A, #3A2A0A); }
   .cat-travel     { background: linear-gradient(135deg, #0A2A2A, #0A3A2A); }
   .cat-music      { background: linear-gradient(135deg, #2A0A3A, #3A0A4A); }
